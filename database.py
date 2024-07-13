@@ -41,7 +41,7 @@ def query_snowflake(document_numbers):
             WHEN hl.serial IS NOT NULL THEN hl.ORGANIZATION_ID 
             ELSE NULL 
         END AS current_org_ID,
-        hl.ORGANIZATION_NAME AS org_name
+        hl.ORGANIZATION_NAME AS current_org
     FROM serials_cte s
     LEFT JOIN MERAKIDW.FACT.HARDWARE_LINKAGE hl ON s.serial = hl.serial
     LEFT JOIN MERAKIDW.FACT.TRIAL_DETAIL_SERIAL td ON s.serial = td.serial
@@ -60,7 +60,7 @@ def query_snowflake(document_numbers):
         acc.MCN,
         td.ORGANIZATION_ID as original_org_id,
         dnc.current_org_id,
-        dnc.org_name,
+        dnc.current_org,
         CASE
             WHEN edo.ORGANIZATION_ID IS NOT NULL THEN 'Yes'
             ELSE 'No'

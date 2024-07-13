@@ -5,6 +5,15 @@ from datetime import datetime
 import os
 import pandas as pd
 
+# def filter_serials(original_serials, additional_serials):
+#     original_set = set(original_serials)
+#     additional_set = set(additional_serials)
+
+#     filtered_serials = original_set.intersection(additional_set)
+
+#     return list(filtered_serials)
+
+
 def main():
     # Read all data from Excel file(s) --  order_id_list is created from "return combined_data['ORDER_ID'].to_list()" in read.py
     order_data = read_files(SOURCE_DIRECTORY)
@@ -20,6 +29,12 @@ def main():
         if result_df.empty:
             print("No data returned from Snowflake for file {file}, skipping.")
             continue
+
+        original_serials = pd.read_excel(file)['SERIAL'].to_list()
+
+        result_df = result_df[result_df['SERIAL'].isin(original_serials)]
+
+        result_df = result_df.drop_duplicates(subset=['SERIAL'])
         
 
         base_filename = os.path.basename(file)
