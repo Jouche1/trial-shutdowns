@@ -1,0 +1,10 @@
+import os
+
+SNOWFLAKE_USER = os.getenv('SNOWFLAKE_USER')
+SNOWFLAKE_PASSWORD = os.getenv('SNOWFLAKE_PASSWORD')
+SNOWFLAKE_ACCOUNT = 'Meraki'
+SNOWFLAKE_WAREHOUSE = 'ADHOC_WH'
+SNOWFLAKE_DATABASE = 'MERAKIDW'
+SNOWFLAKE_SCHEMA = 'FACT'
+SOURCE_DIRECTORY = '/Users/Colby.Bushue/python/shutdowns' 
+TARGET_DIRECTORY = '/Users/Colby.Bushue/documents/updated-shutdowns' 
