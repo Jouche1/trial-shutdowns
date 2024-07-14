@@ -61,11 +61,12 @@ def query_snowflake(document_numbers):
             ELSE 'No'
         END AS is_ea_org,
         td.ORGANIZATION_ID as original_org_id,
+        org.NAME as original_org,
         dnc.current_org_id,
         dnc.current_org,
         acc.SUPPORT_SCORE,
         acc.MCN,
-        acc.NAME
+        acc.NAME as account_name
         
     FROM 
         MERAKIDW.FACT.TRIAL_DETAIL_SERIAL td
@@ -74,7 +75,9 @@ def query_snowflake(document_numbers):
     LEFT JOIN
         MERAKIDW.FACT.EA_DASHBOARD_ORGANIZATIONS edo ON td.ORGANIZATION_ID = edo.ORGANIZATION_ID
     JOIN
-        MERAKIDW.FACT.ACCOUNT acc ON td.ACCOUNT_ID = acc.account_id;
+        MERAKIDW.FACT.ACCOUNT acc ON td.ACCOUNT_ID = acc.account_id
+    LEFT JOIN
+        MERAKIDW.FACT.ORGANIZATIONS org ON td.ORGANIZATION_ID = org.ID;
     """
     try:
         df = pd.read_sql(query, conn)
