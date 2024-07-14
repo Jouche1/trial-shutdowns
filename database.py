@@ -47,24 +47,25 @@ def query_snowflake(document_numbers):
     LEFT JOIN MERAKIDW.FACT.TRIAL_DETAIL_SERIAL td ON s.serial = td.serial
     )
     SELECT DISTINCT
-        dnc.document_number,
+        dnc.document_number as order_id,
         td.SERIAL,
         td.PROD_CODE,
         CASE
             WHEN td.FREE_TRIAL_EXPIRATION_DATE < CURRENT_DATE THEN 'Expired'
             ELSE 'Not Expired'
         END AS trial_status,
-        td.FREE_TRIAL_EXPIRATION_DATE,
+        td.FREE_TRIAL_EXPIRATION_DATE as exp_date,
         dnc.in_cx_network,
-        acc.SUPPORT_SCORE,
-        acc.MCN,
-        td.ORGANIZATION_ID as original_org_id,
-        dnc.current_org_id,
-        dnc.current_org,
         CASE
             WHEN edo.ORGANIZATION_ID IS NOT NULL THEN 'Yes'
             ELSE 'No'
-        END AS is_ea_org
+        END AS is_ea_org,
+        td.ORGANIZATION_ID as original_org_id,
+        dnc.current_org_id,
+        dnc.current_org,
+        acc.SUPPORT_SCORE,
+        acc.MCN,
+        acc.NAME
         
     FROM 
         MERAKIDW.FACT.TRIAL_DETAIL_SERIAL td

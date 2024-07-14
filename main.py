@@ -23,7 +23,7 @@ def main():
     
     for file, order_id_list in order_data.items():
         result_df = query_snowflake(order_id_list)
-        result_df = result_df.fillna(value="None")
+        result_df = result_df.fillna(value="NA")
         print("Dataframe created")
 
         if result_df.empty:
@@ -35,13 +35,12 @@ def main():
         result_df = result_df[result_df['SERIAL'].isin(original_serials)]
 
         result_df = result_df.drop_duplicates(subset=['SERIAL'])
-        
 
         base_filename = os.path.basename(file)
         output_filename = f"updated_{base_filename}"
 
         output_path = os.path.join(TARGET_DIRECTORY, output_filename )
-        sorted_df = result_df.sort_values(by='DOCUMENT_NUMBER')
+        sorted_df = result_df.sort_values(by='ORDER_ID')
         sorted_df.to_excel(output_path, index=False)
         print(f"Export to Excel successful: {output_path}")
 
