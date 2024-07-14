@@ -64,7 +64,6 @@ def main():
 
         # Sort DataFrame by 'ORDER_ID'
         sorted_df = result_df.sort_values(by='ORDER_ID')
-        print(sorted_df.dtypes)
         # print(sorted_df)
 
         base_filename = os.path.basename(file)
