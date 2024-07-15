@@ -8,7 +8,7 @@ from openpyxl import Workbook
 from openpyxl.styles import PatternFill
 
 
-def determine_action(row):
+def add_sales_action(row):
     if row['TRIAL_STATUS'] == 'Expired' and row['ORDER_ID'].startswith('4E') and row['IN_CX_NETWORK'] == 'Yes':
         if row['IS_EA_ORG'] == "Yes":
             return 'Sales'
@@ -78,7 +78,7 @@ def main():
         # print(sorted_df)
 
         # add action column to show which rows require reaching out to sales 
-        sorted_df['ACTION'] = sorted_df.apply(determine_action, axis=1)
+        sorted_df['ACTION'] = sorted_df.apply(add_sales_action, axis=1)
 
         base_filename = os.path.basename(file)
         output_filename = f"updated_{base_filename}"
