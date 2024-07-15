@@ -8,6 +8,18 @@ from openpyxl import Workbook
 from openpyxl.styles import PatternFill
 
 
+def determine_action(row):
+    if row['TRIAL_STATUS'] == 'Expired' and row['ORDER_ID'].startswith('4E') and row['IN_CX_NETWORK'] == 'Yes':
+        if row['IS_EA_ORG'] == "Yes":
+            return 'Sales'
+        elif 'MX' in row['PROD_CODE'] or 'MS' in row['PROD_CODE']:
+            if row['SUPPORT_SCORE'] in ['S0' or 'S1']:
+                return 'Sales'
+    return None
+
+
+
+
 def apply_conditional_formatting(sheet, df):
     if 'PROD_CODE' in df.columns:
         prod_code_col_idx = df.columns.get_loc('PROD_CODE') + 1
@@ -33,11 +45,10 @@ def apply_conditional_formatting(sheet, df):
                 for cell in row:
                     cell.fill = PatternFill(start_color="FFD1DC", end_color="FFD1DC", fill_type="solid")
 
-
-
-
     else:
         print("'PROD_CODE' column not found in DataFrame.")
+
+
 
 
 def main():
@@ -66,6 +77,9 @@ def main():
         sorted_df = result_df.sort_values(by='ORDER_ID')
         # print(sorted_df)
 
+        # add action column to show which rows require reaching out to sales 
+        sorted_df['ACTION'] = sorted_df.apply(determine_action, axis=1)
+
         base_filename = os.path.basename(file)
         output_filename = f"updated_{base_filename}"
 
@@ -87,14 +101,6 @@ def main():
 
         print(f"Export to Excel with conditional formatting successful: {output_path}")
 
-
-
-
-        # original before adding conditional formatting.... 
-        # output_path = os.path.join(TARGET_DIRECTORY, output_filename )
-        # sorted_df = result_df.sort_values(by='ORDER_ID')
-        # sorted_df.to_excel(output_path, index=False)
-        # print(f"Export to Excel successful: {output_path}")
 
 
 if __name__ == "__main__":
