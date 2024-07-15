@@ -8,14 +8,50 @@ from openpyxl import Workbook
 from openpyxl.styles import PatternFill
 
 
-def add_sales_action(row):
-    if row['TRIAL_STATUS'] == 'Expired' and row['ORDER_ID'].startswith('4E') and row['IN_CX_NETWORK'] == 'Yes':
-        if row['IS_EA_ORG'] == "Yes":
-            return 'Sales'
-        elif 'MX' in row['PROD_CODE'] or 'MS' in row['PROD_CODE']:
-            if row['SUPPORT_SCORE'] in ['S0' or 'S1']:
+# def add_action(row):
+#     if row['TRIAL_STATUS'] == "Expired" and row['ORDER_ID'].startswith('4E') and row['IN_CX_NETWORK'] == "Yes":
+#         if row['IS_EA_ORG'] == "Yes":
+#             return 'Sales'
+#         if 'MX' in row['PROD_CODE'] or 'MS' in row['PROD_CODE']:
+#             if row['SUPPORT_SCORE'] in ['S0' or 'S1']:
+#                 return 'Sales'
+#             else: 
+#                 "Remove & shut down"
+#         else: 
+#             return "Remove & shut down"
+#     elif row['TRIAL_STATUS'] == "Expired" and row['ORDER_ID'].startswith('4E'):
+#         if row['IN_CX_NETWORK'] == "No":
+#             return "Shut-er-down"
+#     elif row['TRIAL_STATUS'] == "Not Expired":
+#         return "Let it be"
+    
+
+def add_action(row):
+    if row['TRIAL_STATUS'] == "Expired" and row['ORDER_ID'].startswith('4E'):
+        if row['IN_CX_NETWORK'] == "Yes":
+            if row['IS_EA_ORG'] == "Yes":
                 return 'Sales'
-    return None
+            elif "MX" in row['PROD_CODE'] or "MS" in row['PROD_CODE']:
+                if row['SUPPORT_SCORE'] in ["0", "1"]:
+                    return "Sales"
+                else: 
+                    "Remove & shut down"
+            else: 
+                return "Remove & shut down"
+        else: 
+            return "Shut-er-down"
+    else:
+        return "Let it be"
+        
+
+
+
+
+
+def update_trial_status(row):
+    if not row['ORDER_ID'].startswith('4E'):
+        row['TRIAL_STATUS'] = "Purchased"
+    return row
 
 
 
@@ -77,11 +113,16 @@ def main():
         sorted_df = result_df.sort_values(by='ORDER_ID')
         # print(sorted_df)
 
+        # change trial status from expired to purchased if 5S or 4S order number
+        sorted_df = sorted_df.apply(update_trial_status, axis=1)
+
         # add action column to show which rows require reaching out to sales 
-        sorted_df['ACTION'] = sorted_df.apply(add_sales_action, axis=1)
+        sorted_df['ACTION'] = sorted_df.apply(add_action, axis=1)
+
+
 
         base_filename = os.path.basename(file)
-        output_filename = f"updated_{base_filename}"
+        output_filename = f"updatedv2_{base_filename}"
 
         output_path = os.path.join(TARGET_DIRECTORY, output_filename)
 
@@ -92,7 +133,7 @@ def main():
 
         # Apply conditional formatting
         workbook = writer.book
-        sheet_name = 'Sheet1'  # Adjust sheet name as needed
+        sheet_name = "Sheet1"
         sheet = workbook[sheet_name]
         apply_conditional_formatting(sheet, sorted_df)
 
