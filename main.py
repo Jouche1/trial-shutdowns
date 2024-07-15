@@ -18,7 +18,7 @@ def add_action(row):
                 if row['SUPPORT_SCORE'] in ["0", "1"]:
                     return "Sales"
                 else: 
-                    "Remove & shut down"
+                    return "Remove & shut down"
             else: 
                 return "Remove & shut down"
         elif row['IN_CX_NETWORK'] == "ShutDown":
@@ -77,7 +77,7 @@ def apply_conditional_formatting(sheet, df):
         status_col_idx = df.columns.get_loc('TRIAL_STATUS') + 1
         for row in sheet.iter_rows(min_row=2, max_row=len(df) + 1, min_col=status_col_idx, max_col=status_col_idx):
             status_value = row[0].value
-            if status_value and "Purchased" in str(status_value):
+            if status_value and ("Purchased" in str(status_value)) or ("Not Expired" in str(status_value)):
                 for cell in row:
                     cell.fill = PatternFill(start_color="A7CF97", end_color="A7CF97", fill_type="solid")
 
