@@ -132,7 +132,7 @@ def main():
         # write DataFrame to excel
         writer = pd.ExcelWriter(output_path, engine='openpyxl')
         sorted_df.to_excel(writer, index=False)
-        # writer.save()
+
 
         # apply conditional formatting
         workbook = writer.book
