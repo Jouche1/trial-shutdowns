@@ -2,6 +2,7 @@ import os
 import glob
 import pandas as pd
 
+# read excel files and extract order numbers
 def read_files(directory):
     try:
         order_data = {}

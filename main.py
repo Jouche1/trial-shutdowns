@@ -8,7 +8,7 @@ from openpyxl import Workbook
 from openpyxl.styles import PatternFill
 
 
-
+# add action to action column -- contact sales, shut it down, etc
 def add_action(row):
     if row['TRIAL_STATUS'] == "Expired" and row['ORDER_ID'].startswith('4E'):
         if row['IN_CX_NETWORK'] == "Yes":
@@ -29,14 +29,14 @@ def add_action(row):
         return "DO NOT SHUTDOWN"
         
 
-
+# change purchased trial's status to Purchased 
 def update_trial_status(row):
     if not row['ORDER_ID'].startswith('4E'):
         row['TRIAL_STATUS'] = "Purchased"
     return row
 
 
-
+# apply conditional formatting in output excel file for MX/MS, EA orgs, Support Score, Actions
 def apply_conditional_formatting(sheet, df):
     if 'PROD_CODE' in df.columns:
         prod_code_col_idx = df.columns.get_loc('PROD_CODE') + 1
@@ -90,7 +90,6 @@ def apply_conditional_formatting(sheet, df):
 
 
 def main():
-    # Read all data from Excel file(s) --  order_id_list is created from "return combined_data['ORDER_ID'].to_list()" in read.py
     order_data = read_files(SOURCE_DIRECTORY)
     if not order_data:
         print("No order IDs found, exiting.")
@@ -98,6 +97,7 @@ def main():
     
     for file, order_id_list in order_data.items():
         result_df = query_snowflake(order_id_list)
+        # change null values to "NA"
         result_df = result_df.fillna(value="NA")
         print("Dataframe created")
 
@@ -105,22 +105,23 @@ def main():
             print("No data returned from Snowflake for file {file}, skipping.")
             continue
 
+        # create list of serials from original excel file
         original_serials = pd.read_excel(file)['SERIAL'].to_list()
-
+        
+        # remove serials that were not on original excel file (so there aren't extra devices from a particular order)
         result_df = result_df[result_df['SERIAL'].isin(original_serials)]
-
+        
+        # drop any duplicate serials (if the query pulls a 5S number for puchased trial)
         result_df = result_df.drop_duplicates(subset=['SERIAL'])
 
-        # Sort DataFrame by 'ORDER_ID'
+        # sort DataFrame by 'ORDER_ID' so order numbers are grouped together
         sorted_df = result_df.sort_values(by='ORDER_ID')
-        # print(sorted_df)
 
         # change trial status from expired to purchased if 5S or 4S order number
         sorted_df = sorted_df.apply(update_trial_status, axis=1)
 
-        # add action column to show which rows require reaching out to sales 
+        # add action column to excel sheet to show next steps for each device
         sorted_df['ACTION'] = sorted_df.apply(add_action, axis=1)
-
 
 
         base_filename = os.path.basename(file)
@@ -128,18 +129,18 @@ def main():
 
         output_path = os.path.join(TARGET_DIRECTORY, output_filename)
 
-        # Write DataFrame to Excel
+        # write DataFrame to excel
         writer = pd.ExcelWriter(output_path, engine='openpyxl')
         sorted_df.to_excel(writer, index=False)
         # writer.save()
 
-        # Apply conditional formatting
+        # apply conditional formatting
         workbook = writer.book
         sheet_name = "Sheet1"
         sheet = workbook[sheet_name]
         apply_conditional_formatting(sheet, sorted_df)
 
-        # Save the workbook after applying conditional formatting
+        # save the workbook after applying conditional formatting
         workbook.save(output_path)
 
         print(f"Export to Excel with conditional formatting successful: {output_path}")
