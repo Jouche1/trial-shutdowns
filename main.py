@@ -16,17 +16,17 @@ def add_action(row):
                 return 'Sales'
             elif "MX" in row['PROD_CODE'] or "MS" in row['PROD_CODE']:
                 if row['SUPPORT_SCORE'] in ["0", "1"]:
-                    return "Sales"
+                    return "Contact Sales"
                 else: 
-                    return "Remove & shut down"
+                    return "Remove node & shut down"
             else: 
                 return "Remove & shut down"
         elif row['IN_CX_NETWORK'] == "ShutDown":
             return "None"
         else: 
-            return "Shut-er-down"
+            return "Shut it down"
     else:
-        return "NO SHUTDOWN"
+        return "DO NOT SHUTDOWN"
         
 
 
