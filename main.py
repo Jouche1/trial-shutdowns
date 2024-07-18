@@ -6,6 +6,8 @@ import os
 import pandas as pd
 from openpyxl import Workbook
 from openpyxl.styles import PatternFill
+from openpyxl.utils import get_column_letter
+from openpyxl.styles import Font
 
 
 # add action to action column -- contact sales, shut it down, etc
@@ -36,8 +38,36 @@ def update_trial_status(row):
     return row
 
 
-# apply conditional formatting in output excel file for MX/MS, EA orgs, Support Score, Actions
+def calculate_optimal_width(value, font=Font(name='Calibri', size=11)):
+    # calculate the optimal width for a column in Excel based on the content
+    if value is None:
+        return 0
+    # calculate the length of the string
+    length = len(str(value))
+    # approximate character width based on font and size
+    character_width = 1  # Adjust this based on your font and size
+    # calculate the optimal width
+    optimal_width = (length + 2) * character_width
+    return optimal_width
+
+
 def apply_conditional_formatting(sheet, df):
+    # Adjust column width based on the widest content (header or data) in each column
+    for col in sheet.columns:
+        max_width = 0
+        column_letter = col[0].column_letter  # Get the column letter
+        # Calculate width based on column header
+        header_width = calculate_optimal_width(col[0].value)
+        max_width = max(max_width, header_width)
+        # Calculate width based on data rows
+        for cell in col[1:]:
+            cell_width = calculate_optimal_width(cell.value)
+            max_width = max(max_width, cell_width)
+        # Set the column width
+        sheet.column_dimensions[column_letter].width = max_width
+
+
+
     if 'PROD_CODE' in df.columns:
         prod_code_col_idx = df.columns.get_loc('PROD_CODE') + 1
         for row in sheet.iter_rows(min_row=2, max_row=len(df) + 1, min_col=prod_code_col_idx, max_col=prod_code_col_idx):
@@ -48,7 +78,7 @@ def apply_conditional_formatting(sheet, df):
     else:
         print("PROD_CODE column not found in DataFrame.")
     
-    
+
     if 'IS_EA_ORG' in df.columns:
         ea_org_col_idx = df.columns.get_loc('IS_EA_ORG') + 1
         for row in sheet.iter_rows(min_row=2, max_row=len(df) + 1, min_col=ea_org_col_idx, max_col=ea_org_col_idx):
