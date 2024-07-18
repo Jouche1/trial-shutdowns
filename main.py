@@ -13,14 +13,14 @@ def add_action(row):
     if row['TRIAL_STATUS'] == "Expired" and row['ORDER_ID'].startswith('4E'):
         if row['IN_CX_NETWORK'] == "Yes":
             if row['IS_EA_ORG'] == "Yes":
-                return 'Sales'
+                return 'Contact Sales'
             elif "MX" in row['PROD_CODE'] or "MS" in row['PROD_CODE']:
                 if row['SUPPORT_SCORE'] in ["0", "1"]:
                     return "Contact Sales"
                 else: 
                     return "Remove node & shut down"
             else: 
-                return "Remove & shut down"
+                return "Remove node & shut down"
         elif row['IN_CX_NETWORK'] == "ShutDown":
             return "None"
         else: 
@@ -45,6 +45,9 @@ def apply_conditional_formatting(sheet, df):
             if prod_code_value and ('MX' in str(prod_code_value) or 'MS' in str(prod_code_value)):
                 for cell in row:
                     cell.fill = PatternFill(start_color="B2CBDE", end_color="B2CBDE", fill_type="solid")
+    else:
+        print("PROD_CODE column not found in DataFrame.")
+    
     
     if 'IS_EA_ORG' in df.columns:
         ea_org_col_idx = df.columns.get_loc('IS_EA_ORG') + 1
@@ -53,6 +56,9 @@ def apply_conditional_formatting(sheet, df):
             if ea_org_value and "Yes" in str(ea_org_value):
                 for cell in row:
                     cell.fill = PatternFill(start_color="FDFD96", end_color="FDFD96", fill_type="solid")
+    else:
+        print("IS_EA_ORG column not found in DataFrame.")
+
 
     if 'SUPPORT_SCORE' in df.columns:
         sup_score_col_idx = df.columns.get_loc('SUPPORT_SCORE') + 1
@@ -61,17 +67,23 @@ def apply_conditional_formatting(sheet, df):
             if sup_score_value and ('0' in str(sup_score_value) or '1' in str(sup_score_value)):
                 for cell in row:
                     cell.fill = PatternFill(start_color="FFD1DC", end_color="FFD1DC", fill_type="solid")
+    else:
+        print("SUPPORT_SCORE column not found in DataFrame.")
+
 
     if 'ACTION' in df.columns: 
         action_col_idx = df.columns.get_loc('ACTION') + 1
         for row in sheet.iter_rows(min_row=2, max_row=len(df) + 1, min_col=action_col_idx, max_col=action_col_idx):
             action_value = row[0].value
-            if action_value and "NO SHUTDOWN" in str(action_value):
+            if action_value and "DO NOT SHUTDOWN" in str(action_value):
                 for cell in row:
                     cell.fill = PatternFill(start_color="FF483F", end_color="FF483F", fill_type="solid")
-            if action_value and "Sales" in str(action_value):
+            if action_value and "Contact Sales" in str(action_value):
                 for cell in row:
                     cell.fill = PatternFill(start_color="FFC17A", end_color="FFC17A", fill_type="solid")
+    else:
+        print("ACTION column not found in DataFrame.")
+
 
     if 'TRIAL_STATUS' in df.columns: 
         status_col_idx = df.columns.get_loc('TRIAL_STATUS') + 1
@@ -79,12 +91,9 @@ def apply_conditional_formatting(sheet, df):
             status_value = row[0].value
             if status_value and ("Purchased" in str(status_value)) or ("Not Expired" in str(status_value)):
                 for cell in row:
-                    cell.fill = PatternFill(start_color="A7CF97", end_color="A7CF97", fill_type="solid")
-
-                    
-
+                    cell.fill = PatternFill(start_color="A7CF97", end_color="A7CF97", fill_type="solid")              
     else:
-        print("'PROD_CODE' column not found in DataFrame.")
+        print("TRIAL_STATUS column not found in DataFrame.")
 
 
 
