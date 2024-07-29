@@ -182,7 +182,7 @@ def main():
         # save the workbook after applying conditional formatting
         workbook.save(output_path)
 
-        print(f"Export to Excel with conditional formatting successful: {output_path}")
+        print(f"Export successful: {output_path}")
 
 
 
